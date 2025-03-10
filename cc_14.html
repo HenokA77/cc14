@@ -5,72 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Support Ticket System</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-
-        header, footer {
-            background-color: #333;
+        /* Styling for resolve button */
+        .resolve-btn {
+            background-color: red;
             color: white;
-            padding: 1em;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        main {
-            padding: 20px;
+        .resolve-btn:hover {
+            background-color: darkred;
         }
 
+        /* Styling for the edit button */
+        .edit-btn {
+            background-color: orange;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn:hover {
+            background-color: darkorange;
+        }
+
+        /* Styling for the save button */
+        .save-btn {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .save-btn:hover {
+            background-color: darkgreen;
+        }
+
+        /* Styling for tickets */
+        .ticket-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 90%;
+            margin: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        .high-priority {
+            border: 2px solid red;
+        }
+
+        /* Styling for the container */
         #ticketContainer {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
             padding: 20px;
-            border: 1px solid #ccc;
-            min-height: 200px;
-            background-color: white;
-            max-width: 600px;
-            margin: 0 auto;
-            border-radius: 5px;
-        }
-
-        .ticket-card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: left;
-            background-color: #fff;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-
-        .priority {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-
-        .resolve-btn {
-            margin-top: 10px;
-            padding: 5px 10px;
-            background-color: green;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .resolve-btn:hover {
-            background-color: darkgreen;
-        }
-
-        .high-priority {
-            background-color: #ffcccc; /* Light red background for high priority */
-            border: 2px solid red; /* Red border for high-priority tickets */
         }
     </style>
 </head>
@@ -94,7 +91,126 @@
         <p>&copy; 2025 Support Team. All rights reserved.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        // Function to create a new support ticket
+        function createSupportTicket(name, issue, priority) {
+            const container = document.getElementById("ticketContainer");
 
+            // Create the ticket card element
+            const ticket = document.createElement("div");
+            ticket.classList.add("ticket-card");
+
+            // Create and set up the customer's name heading
+            const nameHeading = document.createElement("h3");
+            nameHeading.textContent = name;
+
+            // Create and set up the issue description paragraph
+            const issuePara = document.createElement("p");
+            issuePara.textContent = issue;
+
+            // Create the priority label
+            const priorityLabel = document.createElement("span");
+            priorityLabel.textContent = `Priority: ${priority}`;
+            priorityLabel.classList.add("priority");
+
+            // Apply color based on priority level
+            if (priority.toLowerCase() === "high") {
+                priorityLabel.style.color = "red";
+                ticket.classList.add("high-priority");  // Add class to highlight high-priority tickets
+            } else if (priority.toLowerCase() === "medium") {
+                priorityLabel.style.color = "orange";
+            } else {
+                priorityLabel.style.color = "green";
+            }
+
+            // Create the resolve button
+            const resolveButton = document.createElement("button");
+            resolveButton.textContent = "Resolve";
+            resolveButton.classList.add("resolve-btn");
+
+            // Event listener to remove the ticket when resolved
+            resolveButton.addEventListener("click", function (event) {
+                // Remove the ticket from the container
+                container.removeChild(ticket);
+
+                // Prevent the event from bubbling up to the container
+                event.stopPropagation();
+            });
+
+            // Create the edit button
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.classList.add("edit-btn");
+
+            // Event listener for editing the ticket
+            editButton.addEventListener("click", function () {
+                enableEditing(ticket, nameHeading, issuePara, priorityLabel);
+            });
+
+            // Add double-click listener to enable editing
+            ticket.addEventListener("dblclick", function () {
+                enableEditing(ticket, nameHeading, issuePara, priorityLabel);
+            });
+
+            // Append elements to the ticket
+            ticket.appendChild(nameHeading);
+            ticket.appendChild(issuePara);
+            ticket.appendChild(priorityLabel);
+            ticket.appendChild(resolveButton);
+            ticket.appendChild(editButton);
+
+            // Append the ticket to the container
+            container.appendChild(ticket);
+        }
+
+        // Enable inline editing for a ticket
+        function enableEditing(ticket, nameHeading, issuePara, priorityLabel) {
+            // Store the original values
+            const originalName = nameHeading.textContent;
+            const originalIssue = issuePara.textContent;
+            const originalPriority = priorityLabel.textContent.replace("Priority: ", "");
+
+            // Replace static content with input fields
+            nameHeading.innerHTML = `<input type="text" value="${originalName}" />`;
+            issuePara.innerHTML = `<input type="text" value="${originalIssue}" />`;
+            priorityLabel.innerHTML = `
+                <select>
+                    <option value="High" ${originalPriority === "High" ? "selected" : ""}>High</option>
+                    <option value="Medium" ${originalPriority === "Medium" ? "selected" : ""}>Medium</option>
+                    <option value="Low" ${originalPriority === "Low" ? "selected" : ""}>Low</option>
+                </select>
+            `;
+
+            // Change the "Edit" button to "Save"
+            const saveButton = document.createElement("button");
+            saveButton.textContent = "Save";
+            saveButton.classList.add("save-btn");
+
+            // Event listener to save the updated values
+            saveButton.addEventListener("click", function () {
+                const newName = nameHeading.querySelector("input").value;
+                const newIssue = issuePara.querySelector("input").value;
+                const newPriority = priorityLabel.querySelector("select").value;
+
+                // Update the ticket with the new values
+                nameHeading.textContent = newName;
+                issuePara.textContent = newIssue;
+                priorityLabel.textContent = `Priority: ${newPriority}`;
+
+                // Revert the "Save" button to "Edit"
+                ticket.removeChild(saveButton);
+                ticket.appendChild(editButton);
+            });
+
+            // Replace the "Edit" button with the "Save" button
+            ticket.removeChild(editButton);
+            ticket.appendChild(saveButton);
+        }
+
+        // Example usage: Adding test tickets
+        createSupportTicket("Alice Johnson", "Cannot access account", "High");
+        createSupportTicket("Bob Smith", "Payment not going through", "Medium");
+        createSupportTicket("Charlie Brown", "Bug in mobile app", "Low");
+    </script>
 </body>
 </html>
